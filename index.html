@@ -461,6 +461,158 @@
       display: none;
     }
 
+    .final-results-view {
+      display: none;
+      width: min(860px, 100%);
+      padding: clamp(1.5rem, 5vw, 3rem);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      border-radius: 1.5rem;
+      background: var(--paper);
+      box-shadow: 0 1.5rem 3.5rem rgba(22, 75, 58, 0.14);
+    }
+
+    .final-results-view.is-visible {
+      display: block;
+    }
+
+    .final-results-view h2 {
+      margin: 0;
+      color: var(--green-dark);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.3rem, 6vw, 4.2rem);
+      font-weight: 500;
+      letter-spacing: -0.05em;
+      line-height: 1;
+    }
+
+    .final-summary {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+      margin: 2rem 0;
+    }
+
+    .summary-card {
+      padding: 1.25rem;
+      border: 1px solid rgba(22, 75, 58, 0.12);
+      border-radius: 1rem;
+      background: linear-gradient(135deg, var(--mint), rgba(255, 253, 248, 0.95));
+    }
+
+    .summary-card dt {
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .summary-card dd {
+      margin: 0.4rem 0 0;
+      color: var(--green-dark);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.7rem, 5vw, 2.5rem);
+      font-weight: 700;
+    }
+
+    .round-breakdown {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .round-breakdown-row {
+      display: grid;
+      grid-template-columns: 4.5rem minmax(9rem, 1.2fr) repeat(3, minmax(7rem, 1fr));
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem;
+      border: 1px solid var(--line);
+      border-radius: 0.85rem;
+      background: #fff;
+    }
+
+    .round-breakdown-row.is-most-accurate {
+      border-color: rgba(22, 75, 58, 0.4);
+      background: linear-gradient(135deg, var(--mint), var(--paper));
+      box-shadow: 0 0.65rem 1.35rem rgba(22, 75, 58, 0.08);
+    }
+
+    .round-breakdown-label {
+      color: var(--muted);
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .round-breakdown-row strong {
+      color: var(--green-dark);
+    }
+
+    .best-round-label {
+      display: inline-block;
+      margin-top: 0.35rem;
+      color: var(--coral);
+      font-size: 0.68rem;
+      font-weight: 850;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .final-results-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+
+    .play-again-button {
+      min-height: 3.25rem;
+      padding: 0.75rem 1.35rem;
+      border: 0;
+      border-radius: 999px;
+      color: #fffaf3;
+      background: var(--green);
+      cursor: pointer;
+      font: inherit;
+      font-weight: 800;
+      transition: background 180ms ease, transform 180ms ease;
+    }
+
+    .play-again-button:hover,
+    .play-again-button:focus-visible {
+      background: var(--green-dark);
+      outline: none;
+      transform: translateY(-2px);
+    }
+
+    .play-again-button:focus-visible {
+      outline: 3px solid rgba(232, 121, 91, 0.5);
+      outline-offset: 4px;
+    }
+
+    .view-results-button {
+      min-height: 3rem;
+      padding: 0.75rem 1.25rem;
+      border: 0;
+      border-radius: 999px;
+      color: #fffaf3;
+      background: var(--coral);
+      cursor: pointer;
+      font: inherit;
+      font-weight: 800;
+    }
+
+    .view-results-button:hover,
+    .view-results-button:focus-visible {
+      background: #c95f43;
+      outline: none;
+    }
+
+    .view-results-button[hidden] {
+      display: none;
+    }
+
     .guess-result h3 {
       margin: 0 0 1rem;
       color: var(--green-dark);
@@ -659,6 +811,27 @@
         width: 100%;
       }
 
+      .final-summary {
+        grid-template-columns: 1fr;
+      }
+
+      .round-breakdown-row {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .round-breakdown-row > :first-child,
+      .round-breakdown-row > :nth-child(2) {
+        grid-column: 1 / -1;
+      }
+
+      .final-results-actions {
+        flex-direction: column-reverse;
+      }
+
+      .final-results-actions button {
+        width: 100%;
+      }
+
       footer {
         width: min(100% - 2rem, 1120px);
       }
@@ -752,9 +925,30 @@
         <div class="game-actions">
           <button class="back-button" id="back-home" type="button">Back to Home</button>
           <button class="next-property-button" id="next-property" type="button" hidden>Next Property</button>
+          <button class="view-results-button" id="view-final-results" type="button" hidden>View Final Results</button>
         </div>
         <p class="completion-message" id="completion-message" hidden>You've completed all 5 rounds!</p>
         <p class="status-message" id="status-message" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="final-results-view" id="final-results-view" aria-labelledby="final-results-title" hidden>
+        <p class="eyebrow">Game complete</p>
+        <h2 id="final-results-title">Your final results</h2>
+        <dl class="final-summary">
+          <div class="summary-card">
+            <dt>Total score</dt>
+            <dd id="final-total-score">0.0 / 500 points</dd>
+          </div>
+          <div class="summary-card">
+            <dt>Average accuracy</dt>
+            <dd id="final-average-accuracy">0.0%</dd>
+          </div>
+        </dl>
+        <div class="round-breakdown" id="round-breakdown" aria-label="Results by round"></div>
+        <div class="final-results-actions">
+          <button class="back-button" id="results-back-home" type="button">Back to Home</button>
+          <button class="play-again-button" id="play-again" type="button">Play Again</button>
+        </div>
       </section>
     </main>
 
@@ -783,6 +977,13 @@
     const resultDirection = document.querySelector("#result-direction");
     const resultDifference = document.querySelector("#result-difference");
     const resultAccuracy = document.querySelector("#result-accuracy");
+    const viewFinalResultsButton = document.querySelector("#view-final-results");
+    const finalResultsView = document.querySelector("#final-results-view");
+    const finalTotalScore = document.querySelector("#final-total-score");
+    const finalAverageAccuracy = document.querySelector("#final-average-accuracy");
+    const roundBreakdown = document.querySelector("#round-breakdown");
+    const playAgainButton = document.querySelector("#play-again");
+    const resultsBackHomeButton = document.querySelector("#results-back-home");
 
     let selectedProperty = null;
     let guessSubmitted = false;
@@ -791,6 +992,7 @@
     let currentRound = 1;
     let totalAccuracyPoints = 0;
     let roundAccuracies = [];
+    let roundResults = [];
 
     const requiredColumns = [
       "listing_id",
@@ -894,6 +1096,7 @@
       guessForm.querySelector("button").disabled = false;
       guessResult.hidden = true;
       nextPropertyButton.hidden = true;
+      viewFinalResultsButton.hidden = true;
       completionMessage.hidden = true;
       statusMessage.textContent = "";
       hero.hidden = true;
@@ -961,6 +1164,12 @@
       const guessAccuracy = Math.max(0, 100 - percentageError);
       roundAccuracies[currentRound - 1] = guessAccuracy;
       totalAccuracyPoints = roundAccuracies.reduce((total, accuracy) => total + accuracy, 0);
+      roundResults[currentRound - 1] = {
+        city: `${selectedProperty.city}, ${selectedProperty.state}`,
+        guess,
+        actualPrice,
+        accuracy: guessAccuracy
+      };
 
       guessInput.value = formattedGuess;
       guessFeedback.textContent = "Your guess has been submitted.";
@@ -988,6 +1197,7 @@
       if (currentRound === 5) {
         completionMessage.hidden = false;
         nextPropertyButton.hidden = true;
+        viewFinalResultsButton.hidden = false;
       } else {
         nextPropertyButton.hidden = false;
       }
@@ -1000,15 +1210,19 @@
       currentRound = 1;
       totalAccuracyPoints = 0;
       roundAccuracies = [];
+      roundResults = [];
       roundIndicator.textContent = "Round 1 of 5";
       totalScore.textContent = "Total score: 0.0 points";
       nextPropertyButton.hidden = true;
+      viewFinalResultsButton.hidden = true;
       completionMessage.hidden = true;
       propertyTitle.textContent = "A home near campus";
       propertyLocation.textContent = "";
       propertyDetails.innerHTML = "";
       statusMessage.textContent = "Loading a property...";
       hero.hidden = true;
+      finalResultsView.hidden = true;
+      finalResultsView.classList.remove("is-visible");
       gameView.hidden = false;
       gameView.classList.add("is-visible");
 
@@ -1037,11 +1251,15 @@
     function returnHome() {
       gameView.hidden = true;
       gameView.classList.remove("is-visible");
+      finalResultsView.hidden = true;
+      finalResultsView.classList.remove("is-visible");
       currentRound = 1;
       totalAccuracyPoints = 0;
       roundAccuracies = [];
+      roundResults = [];
       usedListingIds = new Set();
       nextPropertyButton.hidden = true;
+      viewFinalResultsButton.hidden = true;
       completionMessage.hidden = true;
       guessSubmitted = false;
       guessResult.hidden = true;
@@ -1056,10 +1274,53 @@
       startGameButton.focus();
     }
 
+    function showFinalResults() {
+      if (roundResults.length !== 5) {
+        statusMessage.textContent = "Complete all five rounds before viewing final results.";
+        return;
+      }
+
+      const averageAccuracy = totalAccuracyPoints / 5;
+      let mostAccurateIndex = 0;
+
+      roundResults.forEach((result, index) => {
+        if (result.accuracy > roundResults[mostAccurateIndex].accuracy) {
+          mostAccurateIndex = index;
+        }
+      });
+
+      finalTotalScore.textContent = `${totalAccuracyPoints.toFixed(1)} / 500 points`;
+      finalAverageAccuracy.textContent = `${averageAccuracy.toFixed(1)}%`;
+      roundBreakdown.innerHTML = roundResults.map((result, index) => {
+        const isMostAccurate = index === mostAccurateIndex;
+        return `
+          <article class="round-breakdown-row${isMostAccurate ? " is-most-accurate" : ""}">
+            <div>
+              <span class="round-breakdown-label">Round ${index + 1}</span>
+              ${isMostAccurate ? '<span class="best-round-label">Most accurate</span>' : ""}
+            </div>
+            <strong>${result.city}</strong>
+            <div><span class="round-breakdown-label">Your guess</span><br><strong>${formatCurrency(result.guess)}</strong></div>
+            <div><span class="round-breakdown-label">Actual price</span><br><strong>${formatCurrency(result.actualPrice)}</strong></div>
+            <div><span class="round-breakdown-label">Accuracy</span><br><strong>${result.accuracy.toFixed(1)}%</strong></div>
+          </article>
+        `;
+      }).join("");
+
+      gameView.hidden = true;
+      gameView.classList.remove("is-visible");
+      finalResultsView.hidden = false;
+      finalResultsView.classList.add("is-visible");
+      playAgainButton.focus();
+    }
+
     startGameButton.addEventListener("click", startGame);
     guessForm.addEventListener("submit", submitGuess);
     nextPropertyButton.addEventListener("click", advanceToNextRound);
     backHomeButton.addEventListener("click", returnHome);
+    viewFinalResultsButton.addEventListener("click", showFinalResults);
+    playAgainButton.addEventListener("click", startGame);
+    resultsBackHomeButton.addEventListener("click", returnHome);
   </script>
 </body>
 </html>
