@@ -389,6 +389,78 @@
       display: none;
     }
 
+    .round-status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .round-indicator {
+      margin: 0;
+      color: var(--green);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .total-score {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 800;
+    }
+
+    .game-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+    }
+
+    .next-property-button {
+      min-height: 3rem;
+      padding: 0.75rem 1.25rem;
+      border: 0;
+      border-radius: 999px;
+      color: #fffaf3;
+      background: var(--green);
+      cursor: pointer;
+      font: inherit;
+      font-weight: 800;
+      transition: background 180ms ease, transform 180ms ease;
+    }
+
+    .next-property-button:hover,
+    .next-property-button:focus-visible {
+      background: var(--green-dark);
+      outline: none;
+      transform: translateY(-2px);
+    }
+
+    .next-property-button:focus-visible {
+      outline: 3px solid rgba(232, 121, 91, 0.5);
+      outline-offset: 4px;
+    }
+
+    .next-property-button[hidden] {
+      display: none;
+    }
+
+    .completion-message {
+      margin: 1rem 0 0;
+      color: var(--green-dark);
+      font-size: 1.05rem;
+      font-weight: 800;
+    }
+
+    .completion-message[hidden] {
+      display: none;
+    }
+
     .guess-result h3 {
       margin: 0 0 1rem;
       color: var(--green-dark);
@@ -577,6 +649,16 @@
         grid-template-columns: 1fr;
       }
 
+      .round-status,
+      .game-actions {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .next-property-button {
+        width: 100%;
+      }
+
       footer {
         width: min(100% - 2rem, 1120px);
       }
@@ -625,6 +707,10 @@
       </section>
 
       <section class="game-view" id="game-view" aria-labelledby="property-title" hidden>
+        <div class="round-status">
+          <p class="round-indicator" id="round-indicator">Round 1 of 5</p>
+          <p class="total-score" id="total-score">Total score: 0.0 points</p>
+        </div>
         <p class="eyebrow">Your property</p>
         <h2 id="property-title">A home near campus</h2>
         <p class="property-location" id="property-location"></p>
@@ -663,7 +749,11 @@
             <p class="result-accuracy" id="result-accuracy"></p>
           </section>
         </div>
-        <button class="back-button" id="back-home" type="button">Back to Home</button>
+        <div class="game-actions">
+          <button class="back-button" id="back-home" type="button">Back to Home</button>
+          <button class="next-property-button" id="next-property" type="button" hidden>Next Property</button>
+        </div>
+        <p class="completion-message" id="completion-message" hidden>You've completed all 5 rounds!</p>
         <p class="status-message" id="status-message" role="status" aria-live="polite"></p>
       </section>
     </main>
@@ -679,10 +769,14 @@
     const propertyTitle = document.querySelector("#property-title");
     const propertyLocation = document.querySelector("#property-location");
     const propertyDetails = document.querySelector("#property-details");
+    const roundIndicator = document.querySelector("#round-indicator");
+    const totalScore = document.querySelector("#total-score");
     const guessForm = document.querySelector("#guess-form");
     const guessInput = document.querySelector("#guess-input");
     const guessFeedback = document.querySelector("#guess-feedback");
     const statusMessage = document.querySelector("#status-message");
+    const nextPropertyButton = document.querySelector("#next-property");
+    const completionMessage = document.querySelector("#completion-message");
     const guessResult = document.querySelector("#guess-result");
     const resultYourGuess = document.querySelector("#result-your-guess");
     const resultActualPrice = document.querySelector("#result-actual-price");
@@ -692,8 +786,14 @@
 
     let selectedProperty = null;
     let guessSubmitted = false;
+    let eligibleRecords = [];
+    let usedListingIds = new Set();
+    let currentRound = 1;
+    let totalAccuracyPoints = 0;
+    let roundAccuracies = [];
 
     const requiredColumns = [
+      "listing_id",
       "city",
       "state",
       "university",
@@ -777,6 +877,8 @@
     function showProperty(record) {
       selectedProperty = record;
       guessSubmitted = false;
+      roundIndicator.textContent = `Round ${currentRound} of 5`;
+      totalScore.textContent = `Total score: ${totalAccuracyPoints.toFixed(1)} points`;
       propertyTitle.textContent = `${record.city}, ${record.state}`;
       propertyLocation.textContent = `Near ${record.university}`;
       propertyDetails.innerHTML = [
@@ -791,6 +893,8 @@
       guessInput.disabled = false;
       guessForm.querySelector("button").disabled = false;
       guessResult.hidden = true;
+      nextPropertyButton.hidden = true;
+      completionMessage.hidden = true;
       statusMessage.textContent = "";
       hero.hidden = true;
       gameView.hidden = false;
@@ -804,6 +908,33 @@
         currency: "USD",
         maximumFractionDigits: 2
       }).format(amount);
+    }
+
+    function getRandomProperty() {
+      const unusedRecords = eligibleRecords.filter(
+        (record) => !usedListingIds.has(record.listing_id)
+      );
+
+      if (!unusedRecords.length) {
+        throw new Error("No unused property records were available.");
+      }
+
+      const selected = unusedRecords[Math.floor(Math.random() * unusedRecords.length)];
+      usedListingIds.add(selected.listing_id);
+      return selected;
+    }
+
+    function advanceToNextRound() {
+      if (guessSubmitted && currentRound < 5) {
+        currentRound += 1;
+        try {
+          const selected = getRandomProperty();
+          showProperty(selected);
+        } catch (error) {
+          statusMessage.textContent = "We couldn't load another property. Please start a new game.";
+          console.error(error);
+        }
+      }
     }
 
     function submitGuess(event) {
@@ -828,10 +959,13 @@
       const absoluteDifference = Math.abs(guess - actualPrice);
       const percentageError = absoluteDifference / actualPrice * 100;
       const guessAccuracy = Math.max(0, 100 - percentageError);
+      roundAccuracies[currentRound - 1] = guessAccuracy;
+      totalAccuracyPoints = roundAccuracies.reduce((total, accuracy) => total + accuracy, 0);
 
       guessInput.value = formattedGuess;
       guessFeedback.textContent = "Your guess has been submitted.";
       guessFeedback.classList.add("is-success");
+      totalScore.textContent = `Total score: ${totalAccuracyPoints.toFixed(1)} points`;
 
       resultYourGuess.textContent = formattedGuess;
       resultActualPrice.textContent = formattedActualPrice;
@@ -851,10 +985,25 @@
       guessSubmitted = true;
       guessInput.disabled = true;
       guessForm.querySelector("button").disabled = true;
+      if (currentRound === 5) {
+        completionMessage.hidden = false;
+        nextPropertyButton.hidden = true;
+      } else {
+        nextPropertyButton.hidden = false;
+      }
     }
 
     async function startGame() {
       startGameButton.disabled = true;
+      eligibleRecords = [];
+      usedListingIds = new Set();
+      currentRound = 1;
+      totalAccuracyPoints = 0;
+      roundAccuracies = [];
+      roundIndicator.textContent = "Round 1 of 5";
+      totalScore.textContent = "Total score: 0.0 points";
+      nextPropertyButton.hidden = true;
+      completionMessage.hidden = true;
       propertyTitle.textContent = "A home near campus";
       propertyLocation.textContent = "";
       propertyDetails.innerHTML = "";
@@ -874,7 +1023,8 @@
           throw new Error("No valid property records were found.");
         }
 
-        const selected = records[Math.floor(Math.random() * records.length)];
+        eligibleRecords = records;
+        const selected = getRandomProperty();
         showProperty(selected);
       } catch (error) {
         statusMessage.textContent = "We couldn't load a property right now. Please try again.";
@@ -887,12 +1037,28 @@
     function returnHome() {
       gameView.hidden = true;
       gameView.classList.remove("is-visible");
+      currentRound = 1;
+      totalAccuracyPoints = 0;
+      roundAccuracies = [];
+      usedListingIds = new Set();
+      nextPropertyButton.hidden = true;
+      completionMessage.hidden = true;
+      guessSubmitted = false;
+      guessResult.hidden = true;
+      guessForm.reset();
+      guessFeedback.textContent = "";
+      guessFeedback.classList.remove("is-success");
+      guessInput.disabled = false;
+      guessForm.querySelector("button").disabled = false;
+      roundIndicator.textContent = "Round 1 of 5";
+      totalScore.textContent = "Total score: 0.0 points";
       hero.hidden = false;
       startGameButton.focus();
     }
 
     startGameButton.addEventListener("click", startGame);
     guessForm.addEventListener("submit", submitGuess);
+    nextPropertyButton.addEventListener("click", advanceToNextRound);
     backHomeButton.addEventListener("click", returnHome);
   </script>
 </body>
