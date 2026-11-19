@@ -8,15 +8,15 @@
   <link rel="icon" href="data:,">
   <style>
     :root {
-      --ink: #17231d;
-      --muted: #64736a;
-      --cream: #f7f5ef;
-      --paper: #fffdf8;
-      --green: #164b3a;
-      --green-dark: #0e3328;
-      --mint: #dcefe4;
-      --coral: #e8795b;
-      --line: rgba(23, 35, 29, 0.12);
+      --ink: #2D1948;
+      --muted: #6F6083;
+      --cream: #F0E8FA;
+      --paper: #FEFCFF;
+      --green: #6B46A3;
+      --green-dark: #2D1948;
+      --mint: #DDD0F3;
+      --coral: #6B46A3;
+      --line: rgba(45, 25, 72, 0.12);
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: var(--ink);
       background: var(--cream);
@@ -32,8 +32,8 @@
       margin: 0;
       overflow-x: hidden;
       background:
-        radial-gradient(circle at 88% 8%, rgba(232, 121, 91, 0.14), transparent 25rem),
-        linear-gradient(135deg, var(--cream) 0%, #edf4ed 100%);
+        radial-gradient(circle at 88% 8%, rgba(107, 70, 163, 0.12), transparent 25rem),
+        linear-gradient(135deg, var(--cream) 0%, #E8DCF7 100%);
     }
 
     .page {
@@ -49,7 +49,7 @@
       position: absolute;
       z-index: -1;
       content: "";
-      border: 1px solid rgba(22, 75, 58, 0.1);
+      border: 1px solid rgba(107, 70, 163, 0.12);
       border-radius: 50%;
       pointer-events: none;
     }
@@ -96,7 +96,7 @@
       border-radius: 0.7rem;
       color: var(--paper);
       background: var(--green);
-      box-shadow: 0 0.45rem 1rem rgba(22, 75, 58, 0.2);
+      box-shadow: 0 0.45rem 1rem rgba(45, 25, 72, 0.16);
       font-size: 1.15rem;
     }
 
@@ -174,9 +174,9 @@
       padding: 0.9rem 1.5rem;
       border: 0;
       border-radius: 999px;
-      color: #fffaf3;
+      color: #FFFFFF;
       background: var(--green);
-      box-shadow: 0 0.8rem 1.5rem rgba(22, 75, 58, 0.2);
+      box-shadow: 0 0.8rem 1.5rem rgba(45, 25, 72, 0.18);
       cursor: pointer;
       font: inherit;
       font-size: 1.05rem;
@@ -193,13 +193,13 @@
     .start-button:hover,
     .start-button:focus-visible {
       background: var(--green-dark);
-      box-shadow: 0 1rem 1.8rem rgba(22, 75, 58, 0.28);
+      box-shadow: 0 1rem 1.8rem rgba(45, 25, 72, 0.24);
       outline: none;
       transform: translateY(-2px);
     }
 
     .start-button:focus-visible {
-      outline: 3px solid rgba(232, 121, 91, 0.5);
+      outline: 3px solid rgba(107, 70, 163, 0.42);
       outline-offset: 4px;
     }
 
@@ -207,10 +207,10 @@
       display: none;
       width: min(680px, 100%);
       padding: clamp(2rem, 6vw, 4rem);
-      border: 1px solid rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(221, 208, 243, 0.75);
       border-radius: 1.5rem;
       background: var(--paper);
-      box-shadow: 0 1.5rem 3.5rem rgba(22, 75, 58, 0.14);
+      box-shadow: 0 1.5rem 3.5rem rgba(45, 25, 72, 0.12);
     }
 
     .game-view.is-visible {
@@ -299,17 +299,17 @@
       flex: 1;
       min-height: 3.25rem;
       padding: 0.75rem 1rem;
-      border: 1px solid rgba(23, 35, 29, 0.25);
+      border: 1px solid rgba(45, 25, 72, 0.25);
       border-radius: 0.75rem;
       color: var(--ink);
-      background: #fff;
+      background: #FFFFFF;
       font: inherit;
       font-size: 1.05rem;
     }
 
     .guess-input:focus {
       border-color: var(--green);
-      outline: 3px solid rgba(232, 121, 91, 0.3);
+      outline: 3px solid rgba(107, 70, 163, 0.28);
       outline-offset: 2px;
     }
 
@@ -318,7 +318,7 @@
       padding: 0.75rem 1.25rem;
       border: 0;
       border-radius: 0.75rem;
-      color: #fffaf3;
+      color: #FFFFFF;
       background: var(--green);
       cursor: pointer;
       font: inherit;
@@ -334,7 +334,7 @@
     }
 
     .submit-guess-button:focus-visible {
-      outline: 3px solid rgba(232, 121, 91, 0.5);
+      outline: 3px solid rgba(107, 70, 163, 0.42);
       outline-offset: 4px;
     }
 
@@ -356,13 +356,13 @@
 
     .back-button:hover,
     .back-button:focus-visible {
-      color: #fffaf3;
+      color: #FFFFFF;
       background: var(--green);
       outline: none;
     }
 
     .back-button:focus-visible {
-      outline: 3px solid rgba(232, 121, 91, 0.5);
+      outline: 3px solid rgba(107, 70, 163, 0.42);
       outline-offset: 4px;
     }
 
@@ -379,10 +379,10 @@
     .guess-result {
       margin-top: 1.25rem;
       padding: 1.25rem;
-      border: 1px solid rgba(22, 75, 58, 0.14);
+      border: 1px solid rgba(107, 70, 163, 0.14);
       border-radius: 1rem;
       background: linear-gradient(135deg, var(--mint), var(--paper));
-      box-shadow: 0 0.8rem 1.8rem rgba(22, 75, 58, 0.08);
+      box-shadow: 0 0.8rem 1.8rem rgba(45, 25, 72, 0.08);
     }
 
     .guess-result[hidden] {
@@ -426,7 +426,7 @@
       padding: 0.75rem 1.25rem;
       border: 0;
       border-radius: 999px;
-      color: #fffaf3;
+      color: #FFFFFF;
       background: var(--green);
       cursor: pointer;
       font: inherit;
@@ -442,7 +442,7 @@
     }
 
     .next-property-button:focus-visible {
-      outline: 3px solid rgba(232, 121, 91, 0.5);
+      outline: 3px solid rgba(107, 70, 163, 0.42);
       outline-offset: 4px;
     }
 
@@ -465,10 +465,10 @@
       display: none;
       width: min(860px, 100%);
       padding: clamp(1.5rem, 5vw, 3rem);
-      border: 1px solid rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(221, 208, 243, 0.75);
       border-radius: 1.5rem;
       background: var(--paper);
-      box-shadow: 0 1.5rem 3.5rem rgba(22, 75, 58, 0.14);
+      box-shadow: 0 1.5rem 3.5rem rgba(45, 25, 72, 0.12);
     }
 
     .final-results-view.is-visible {
@@ -494,9 +494,9 @@
 
     .summary-card {
       padding: 1.25rem;
-      border: 1px solid rgba(22, 75, 58, 0.12);
+      border: 1px solid rgba(107, 70, 163, 0.12);
       border-radius: 1rem;
-      background: linear-gradient(135deg, var(--mint), rgba(255, 253, 248, 0.95));
+      background: linear-gradient(135deg, var(--mint), rgba(254, 252, 255, 0.95));
     }
 
     .summary-card dt {
@@ -528,13 +528,13 @@
       padding: 1rem;
       border: 1px solid var(--line);
       border-radius: 0.85rem;
-      background: #fff;
+      background: #FFFFFF;
     }
 
     .round-breakdown-row.is-most-accurate {
-      border-color: rgba(22, 75, 58, 0.4);
+      border-color: rgba(107, 70, 163, 0.38);
       background: linear-gradient(135deg, var(--mint), var(--paper));
-      box-shadow: 0 0.65rem 1.35rem rgba(22, 75, 58, 0.08);
+      box-shadow: 0 0.65rem 1.35rem rgba(45, 25, 72, 0.08);
     }
 
     .round-breakdown-label {
@@ -571,7 +571,7 @@
       padding: 0.75rem 1.35rem;
       border: 0;
       border-radius: 999px;
-      color: #fffaf3;
+      color: #FFFFFF;
       background: var(--green);
       cursor: pointer;
       font: inherit;
@@ -587,7 +587,7 @@
     }
 
     .play-again-button:focus-visible {
-      outline: 3px solid rgba(232, 121, 91, 0.5);
+      outline: 3px solid rgba(107, 70, 163, 0.42);
       outline-offset: 4px;
     }
 
@@ -596,7 +596,7 @@
       padding: 0.75rem 1.25rem;
       border: 0;
       border-radius: 999px;
-      color: #fffaf3;
+      color: #FFFFFF;
       background: var(--coral);
       cursor: pointer;
       font: inherit;
@@ -605,7 +605,7 @@
 
     .view-results-button:hover,
     .view-results-button:focus-visible {
-      background: #c95f43;
+      background: var(--green-dark);
       outline: none;
     }
 
@@ -630,7 +630,7 @@
     .price-comparison div {
       padding: 1rem;
       border-radius: 0.75rem;
-      background: rgba(255, 253, 248, 0.9);
+      background: rgba(254, 252, 255, 0.92);
     }
 
     .price-comparison dt {
@@ -676,10 +676,10 @@
       position: absolute;
       inset: 1.5rem 1rem 1rem 1.5rem;
       overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(221, 208, 243, 0.75);
       border-radius: 1.5rem;
       background: var(--paper);
-      box-shadow: 0 1.5rem 3.5rem rgba(22, 75, 58, 0.14);
+      box-shadow: 0 1.5rem 3.5rem rgba(45, 25, 72, 0.12);
       transform: rotate(4deg);
     }
 
@@ -690,8 +690,8 @@
       background:
         linear-gradient(150deg, transparent 46%, rgba(255, 255, 255, 0.58) 47% 50%, transparent 51%),
         linear-gradient(30deg, transparent 46%, rgba(255, 255, 255, 0.48) 47% 50%, transparent 51%),
-        linear-gradient(135deg, rgba(22, 75, 58, 0.25), rgba(90, 151, 119, 0.75)),
-        #9ec7ac;
+        linear-gradient(135deg, rgba(45, 25, 72, 0.32), rgba(107, 70, 163, 0.78)),
+        #C4ADE6;
     }
 
     .card-content {
@@ -731,7 +731,7 @@
       border-radius: 0.9rem;
       color: var(--green-dark);
       background: var(--mint);
-      box-shadow: 0 0.8rem 1.5rem rgba(22, 75, 58, 0.13);
+      box-shadow: 0 0.8rem 1.5rem rgba(45, 25, 72, 0.12);
       font-family: Georgia, "Times New Roman", serif;
       font-size: 1.5rem;
       transform: rotate(-7deg);
