@@ -203,6 +203,103 @@
       outline-offset: 4px;
     }
 
+    .game-view {
+      display: none;
+      width: min(680px, 100%);
+      padding: clamp(2rem, 6vw, 4rem);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      border-radius: 1.5rem;
+      background: var(--paper);
+      box-shadow: 0 1.5rem 3.5rem rgba(22, 75, 58, 0.14);
+    }
+
+    .game-view.is-visible {
+      display: block;
+    }
+
+    .game-view h2 {
+      margin: 0;
+      color: var(--green-dark);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.2rem, 6vw, 4rem);
+      font-weight: 500;
+      letter-spacing: -0.05em;
+      line-height: 1;
+    }
+
+    .property-location {
+      margin: 1rem 0 2rem;
+      color: var(--muted);
+      font-size: 1.1rem;
+      line-height: 1.6;
+    }
+
+    .property-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1px;
+      margin: 0 0 2rem;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 1rem;
+      background: var(--line);
+    }
+
+    .property-detail {
+      padding: 1rem;
+      background: var(--paper);
+    }
+
+    .property-detail dt {
+      margin-bottom: 0.35rem;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .property-detail dd {
+      margin: 0;
+      color: var(--green-dark);
+      font-size: 1.05rem;
+      font-weight: 750;
+    }
+
+    .back-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 3rem;
+      padding: 0.75rem 1.25rem;
+      border: 1px solid var(--green);
+      border-radius: 999px;
+      color: var(--green);
+      background: transparent;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 800;
+      transition: background 180ms ease, color 180ms ease;
+    }
+
+    .back-button:hover,
+    .back-button:focus-visible {
+      color: #fffaf3;
+      background: var(--green);
+      outline: none;
+    }
+
+    .back-button:focus-visible {
+      outline: 3px solid rgba(232, 121, 91, 0.5);
+      outline-offset: 4px;
+    }
+
+    .status-message {
+      margin: 1rem 0 0;
+      color: var(--coral);
+      font-weight: 700;
+    }
+
     .visual {
       position: relative;
       min-height: 24rem;
@@ -353,7 +450,7 @@
           <p class="eyebrow">A real estate guessing game</p>
           <h1 id="page-title">Guess the Sale Price: College Town Edition.</h1>
           <p class="intro">Think you know college-town real estate? Guess what homes actually sold for and test your skills!</p>
-          <button class="start-button" type="button">Start Game</button>
+          <button class="start-button" id="start-game" type="button">Start Game</button>
         </div>
 
         <div class="visual" aria-hidden="true">
@@ -371,9 +468,167 @@
           <div class="price-tag">What did it sell for?</div>
         </div>
       </section>
+
+      <section class="game-view" id="game-view" aria-labelledby="property-title" hidden>
+        <p class="eyebrow">Your property</p>
+        <h2 id="property-title">A home near campus</h2>
+        <p class="property-location" id="property-location"></p>
+        <dl class="property-details" id="property-details"></dl>
+        <button class="back-button" id="back-home" type="button">Back to Home</button>
+        <p class="status-message" id="status-message" role="status" aria-live="polite"></p>
+      </section>
     </main>
 
     <footer>College-town homes. Real sale prices. Your best guess.</footer>
   </div>
+
+  <script>
+    const startGameButton = document.querySelector("#start-game");
+    const backHomeButton = document.querySelector("#back-home");
+    const hero = document.querySelector(".hero");
+    const gameView = document.querySelector("#game-view");
+    const propertyTitle = document.querySelector("#property-title");
+    const propertyLocation = document.querySelector("#property-location");
+    const propertyDetails = document.querySelector("#property-details");
+    const statusMessage = document.querySelector("#status-message");
+
+    const requiredColumns = [
+      "city",
+      "state",
+      "university",
+      "sale_price",
+      "beds",
+      "baths",
+      "living_area_sqft",
+      "year_built"
+    ];
+
+    function parseCsvRow(row) {
+      const values = [];
+      let value = "";
+      let quoted = false;
+
+      for (let index = 0; index < row.length; index += 1) {
+        const character = row[index];
+        const nextCharacter = row[index + 1];
+
+        if (character === '"' && quoted && nextCharacter === '"') {
+          value += '"';
+          index += 1;
+        } else if (character === '"') {
+          quoted = !quoted;
+        } else if (character === "," && !quoted) {
+          values.push(value);
+          value = "";
+        } else {
+          value += character;
+        }
+      }
+
+      values.push(value);
+      return values;
+    }
+
+    function parseCsv(text) {
+      const rows = text.trim().split(/\r?\n/);
+      const headers = parseCsvRow(rows.shift());
+
+      return rows
+        .filter((row) => row.trim())
+        .map((row) => {
+          const values = parseCsvRow(row);
+          return headers.reduce((record, header, index) => {
+            record[header] = values[index] || "";
+            return record;
+          }, {});
+        });
+    }
+
+    function isValidProperty(record) {
+      const hasRequiredText = requiredColumns
+        .filter((column) => !["sale_price", "beds", "baths", "living_area_sqft", "year_built"].includes(column))
+        .every((column) => record[column].trim() !== "");
+      const salePrice = Number(record.sale_price);
+      const beds = Number(record.beds);
+      const baths = Number(record.baths);
+      const livingArea = Number(record.living_area_sqft);
+      const yearBuilt = Number(record.year_built);
+
+      return hasRequiredText
+        && Number.isFinite(salePrice)
+        && salePrice >= 10000
+        && Number.isInteger(beds)
+        && beds > 0
+        && Number.isFinite(baths)
+        && baths > 0
+        && baths <= 20
+        && Number.isInteger(livingArea)
+        && livingArea > 0
+        && Number.isInteger(yearBuilt)
+        && yearBuilt >= 1900
+        && yearBuilt <= new Date().getFullYear();
+    }
+
+    function detail(label, value) {
+      return `<div class="property-detail"><dt>${label}</dt><dd>${value}</dd></div>`;
+    }
+
+    function showProperty(record) {
+      propertyTitle.textContent = `${record.city}, ${record.state}`;
+      propertyLocation.textContent = `Near ${record.university}`;
+      propertyDetails.innerHTML = [
+        detail("Bedrooms", record.beds),
+        detail("Bathrooms", record.baths),
+        detail("Living area", `${Number(record.living_area_sqft).toLocaleString()} sq ft`),
+        detail("Year built", record.year_built)
+      ].join("");
+      statusMessage.textContent = "";
+      hero.hidden = true;
+      gameView.hidden = false;
+      gameView.classList.add("is-visible");
+      backHomeButton.focus();
+    }
+
+    async function startGame() {
+      startGameButton.disabled = true;
+      propertyTitle.textContent = "A home near campus";
+      propertyLocation.textContent = "";
+      propertyDetails.innerHTML = "";
+      statusMessage.textContent = "Loading a property...";
+      hero.hidden = true;
+      gameView.hidden = false;
+      gameView.classList.add("is-visible");
+
+      try {
+        const response = await fetch("data/college_town_home_sales.csv");
+        if (!response.ok) {
+          throw new Error(`CSV request failed with status ${response.status}`);
+        }
+
+        const records = parseCsv(await response.text()).filter(isValidProperty);
+        if (!records.length) {
+          throw new Error("No valid property records were found.");
+        }
+
+        const selected = records[Math.floor(Math.random() * records.length)];
+        showProperty(selected);
+      } catch (error) {
+        statusMessage.textContent = "We couldn't load a property right now. Please try again.";
+        console.error(error);
+      } finally {
+        startGameButton.disabled = false;
+      }
+    }
+
+    function returnHome() {
+      gameView.hidden = true;
+      gameView.classList.remove("is-visible");
+      hero.hidden = false;
+      startGameButton.focus();
+    }
+
+    startGameButton.addEventListener("click", startGame);
+    backHomeButton.addEventListener("click", returnHome);
+  </script>
 </body>
 </html>
