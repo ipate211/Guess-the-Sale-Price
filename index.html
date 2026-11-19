@@ -376,6 +376,73 @@
       color: var(--green);
     }
 
+    .guess-result {
+      margin-top: 1.25rem;
+      padding: 1.25rem;
+      border: 1px solid rgba(22, 75, 58, 0.14);
+      border-radius: 1rem;
+      background: linear-gradient(135deg, var(--mint), var(--paper));
+      box-shadow: 0 0.8rem 1.8rem rgba(22, 75, 58, 0.08);
+    }
+
+    .guess-result[hidden] {
+      display: none;
+    }
+
+    .guess-result h3 {
+      margin: 0 0 1rem;
+      color: var(--green-dark);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.45rem;
+    }
+
+    .price-comparison {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.75rem;
+      margin: 0;
+    }
+
+    .price-comparison div {
+      padding: 1rem;
+      border-radius: 0.75rem;
+      background: rgba(255, 253, 248, 0.9);
+    }
+
+    .price-comparison dt {
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .price-comparison dd {
+      margin: 0.35rem 0 0;
+      color: var(--green-dark);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.2rem, 4vw, 1.75rem);
+      font-weight: 700;
+    }
+
+    .result-direction,
+    .result-difference,
+    .result-accuracy {
+      margin: 0.75rem 0 0;
+      line-height: 1.5;
+    }
+
+    .result-direction {
+      color: var(--green-dark);
+      font-size: 1.05rem;
+      font-weight: 800;
+    }
+
+    .result-difference,
+    .result-accuracy {
+      color: var(--muted);
+    }
+
     .visual {
       position: relative;
       min-height: 24rem;
@@ -506,6 +573,10 @@
         width: 100%;
       }
 
+      .price-comparison {
+        grid-template-columns: 1fr;
+      }
+
       footer {
         width: min(100% - 2rem, 1120px);
       }
@@ -575,6 +646,22 @@
             <button class="submit-guess-button" type="submit">Submit Guess</button>
           </form>
           <p class="status-message" id="guess-feedback" role="status" aria-live="polite"></p>
+          <section class="guess-result" id="guess-result" aria-live="polite" hidden>
+            <h3>Sale price reveal</h3>
+            <dl class="price-comparison">
+              <div>
+                <dt>Your guess</dt>
+                <dd id="result-your-guess"></dd>
+              </div>
+              <div>
+                <dt>Actual sale price</dt>
+                <dd id="result-actual-price"></dd>
+              </div>
+            </dl>
+            <p class="result-direction" id="result-direction"></p>
+            <p class="result-difference" id="result-difference"></p>
+            <p class="result-accuracy" id="result-accuracy"></p>
+          </section>
         </div>
         <button class="back-button" id="back-home" type="button">Back to Home</button>
         <p class="status-message" id="status-message" role="status" aria-live="polite"></p>
@@ -596,6 +683,15 @@
     const guessInput = document.querySelector("#guess-input");
     const guessFeedback = document.querySelector("#guess-feedback");
     const statusMessage = document.querySelector("#status-message");
+    const guessResult = document.querySelector("#guess-result");
+    const resultYourGuess = document.querySelector("#result-your-guess");
+    const resultActualPrice = document.querySelector("#result-actual-price");
+    const resultDirection = document.querySelector("#result-direction");
+    const resultDifference = document.querySelector("#result-difference");
+    const resultAccuracy = document.querySelector("#result-accuracy");
+
+    let selectedProperty = null;
+    let guessSubmitted = false;
 
     const requiredColumns = [
       "city",
@@ -679,6 +775,8 @@
     }
 
     function showProperty(record) {
+      selectedProperty = record;
+      guessSubmitted = false;
       propertyTitle.textContent = `${record.city}, ${record.state}`;
       propertyLocation.textContent = `Near ${record.university}`;
       propertyDetails.innerHTML = [
@@ -690,6 +788,9 @@
       guessForm.reset();
       guessFeedback.textContent = "";
       guessFeedback.classList.remove("is-success");
+      guessInput.disabled = false;
+      guessForm.querySelector("button").disabled = false;
+      guessResult.hidden = true;
       statusMessage.textContent = "";
       hero.hidden = true;
       gameView.hidden = false;
@@ -707,6 +808,10 @@
 
     function submitGuess(event) {
       event.preventDefault();
+      if (guessSubmitted || !selectedProperty) {
+        return;
+      }
+
       const rawGuess = guessInput.value.trim().replace(/[$,\s]/g, "");
       const guess = Number(rawGuess);
 
@@ -717,10 +822,35 @@
         return;
       }
 
+      const actualPrice = Number(selectedProperty.sale_price);
       const formattedGuess = formatCurrency(guess);
+      const formattedActualPrice = formatCurrency(actualPrice);
+      const absoluteDifference = Math.abs(guess - actualPrice);
+      const percentageError = absoluteDifference / actualPrice * 100;
+      const guessAccuracy = Math.max(0, 100 - percentageError);
+
       guessInput.value = formattedGuess;
-      guessFeedback.textContent = `Guess submitted! You entered ${formattedGuess}.`;
+      guessFeedback.textContent = "Your guess has been submitted.";
       guessFeedback.classList.add("is-success");
+
+      resultYourGuess.textContent = formattedGuess;
+      resultActualPrice.textContent = formattedActualPrice;
+
+      if (guess > actualPrice) {
+        resultDirection.textContent = "You guessed too high.";
+      } else if (guess < actualPrice) {
+        resultDirection.textContent = "You guessed too low.";
+      } else {
+        resultDirection.textContent = "Exact match!";
+      }
+
+      resultDifference.textContent = `Absolute difference: ${formatCurrency(absoluteDifference)}`;
+      resultAccuracy.textContent = `Guess accuracy: ${guessAccuracy.toFixed(1)}%`;
+      guessResult.hidden = false;
+
+      guessSubmitted = true;
+      guessInput.disabled = true;
+      guessForm.querySelector("button").disabled = true;
     }
 
     async function startGame() {
